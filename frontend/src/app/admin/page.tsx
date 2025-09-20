@@ -52,34 +52,32 @@ export default function AdminPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full h-full">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Administração TrâmiteJá
-              </h1>
-              <p className="text-gray-600">
-                Painel de controle e gestão da plataforma
-              </p>
-            </div>
-            <div className="mt-4 sm:mt-0 flex space-x-3">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Relatórios
-              </Button>
-              <Button size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Configurações
-              </Button>
-            </div>
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Administração TrâmiteJá
+            </h1>
+            <p className="text-gray-600">
+              Painel de controle e gestão da plataforma
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Relatórios
+            </Button>
+            <Button size="sm">
+              <Settings className="h-4 w-4 mr-2" />
+              Configurações
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
         {/* Alertas */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Alertas do Sistema</h2>

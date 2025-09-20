@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Kanit, Maitree, Fira_Code } from "next/font/google";
+import { ServerSidebar } from "@/components/ServerSidebar";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -35,7 +36,9 @@ export default function RootLayout({
         className={`${kanit.variable} ${maitree.variable} ${firaCode.variable} font-sans antialiased`}
         suppressHydrationWarning={true}
       >
-        {children}
+        <ServerSidebar>
+          {children}
+        </ServerSidebar>
       </body>
     </html>
   );

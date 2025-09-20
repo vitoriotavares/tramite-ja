@@ -4,7 +4,12 @@ import { useState } from 'react'
 import { VotingInterface } from '@/components/VotingInterface'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Vote, Clock, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { Search, Vote, Clock, CheckCircle2, AlertCircle, Scale, User, FileText, Eye } from 'lucide-react'
 
 export default function JulgadorPage() {
   const [julgadorData] = useState({
@@ -76,37 +81,35 @@ export default function JulgadorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full h-full">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Dashboard do Julgador
-              </h1>
-              <p className="text-gray-600">
-                {julgadorData.nome} • {julgadorData.registro_profissional}
-              </p>
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Dashboard do Julgador
+            </h1>
+            <p className="text-gray-600">
+              {julgadorData.nome} • {julgadorData.registro_profissional}
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">{processosPendentes.length}</p>
+              <p className="text-xs text-gray-600">Votos Pendentes</p>
             </div>
-            <div className="mt-4 sm:mt-0 flex items-center space-x-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-orange-600">{processosPendentes.length}</p>
-                <p className="text-xs text-gray-600">Votos Pendentes</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{processosVotados.length}</p>
-                <p className="text-xs text-gray-600">Votos Realizados</p>
-              </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-600">{processosVotados.length}</p>
+              <p className="text-xs text-gray-600">Votos Realizados</p>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
+      <div className="space-y-6">
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Buscar processos..."
@@ -115,152 +118,235 @@ export default function JulgadorPage() {
               className="pl-10"
             />
           </div>
+          <Tabs defaultValue="pendentes" className="w-auto">
+            <TabsList>
+              <TabsTrigger value="pendentes">Pendentes ({processosPendentes.length})</TabsTrigger>
+              <TabsTrigger value="votados">Votados ({processosVotados.length})</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
-        {/* Processos Pendentes */}
-        {processosPendentes.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <AlertCircle className="h-5 w-5 text-orange-600 mr-2" />
-              Votações Pendentes ({processosPendentes.length})
-            </h2>
-            <div className="space-y-4">
-              {processosPendentes
-                .filter(processo =>
-                  processo.codigo_acompanhamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  processo.cidadao_nome.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((processo) => (
-                <div key={processo.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                  <div className="p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <h3 className="text-lg font-medium text-gray-900">
+        <Tabs defaultValue="pendentes" className="w-full">
+          <TabsContent value="pendentes" className="space-y-4">
+            {processosPendentes.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <Vote className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Nenhuma votação pendente
+                </h3>
+                <p className="text-gray-600">
+                  Não há processos aguardando seu voto no momento
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {processosPendentes
+                  .filter(processo =>
+                    processo.codigo_acompanhamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    processo.cidadao_nome.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((processo) => (
+                  <div key={processo.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div className="p-6">
+                      {/* Header with Status Badges */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-lg font-semibold text-gray-900">
                             {processo.codigo_acompanhamento}
                           </h3>
-                          {isUrgent(processo.data_limite_votacao) && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              URGENTE
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
-                          <div>
-                            <span className="font-medium">Cidadão:</span> {processo.cidadao_nome}
-                          </div>
-                          <div>
-                            <span className="font-medium">Tipo:</span> {processo.tipo_infracao}
-                          </div>
-                          <div>
-                            <span className="font-medium">Relator:</span> {processo.relator_nome}
-                          </div>
-                          <div className={isUrgent(processo.data_limite_votacao) ? 'text-red-600 font-medium' : ''}>
-                            <Clock className="inline h-4 w-4 mr-1" />
-                            {getTimeRemaining(processo.data_limite_votacao)}
+                          <div className="flex gap-2">
+                            {isUrgent(processo.data_limite_votacao) && (
+                              <Badge variant="destructive">URGENTE</Badge>
+                            )}
+                            <Badge variant="outline">
+                              {processo.tipo_infracao.replace('_', ' ')}
+                            </Badge>
                           </div>
                         </div>
-
-                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
-                          <p className="text-sm text-blue-800">
-                            <strong>Parecer do Relator:</strong> {processo.parecer_relator}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center space-x-4 text-sm">
-                          <div className="flex items-center">
-                            <Vote className="h-4 w-4 text-gray-400 mr-1" />
-                            <span>{processo.votos_atuais}/{processo.quorum_necessario} votos</span>
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm text-gray-600">
+                            <Vote className="inline h-4 w-4 mr-1" />
+                            {processo.votos_atuais}/{processo.quorum_necessario}
                           </div>
-                          <div className="bg-gray-200 rounded-full h-2 flex-1 max-w-32">
-                            <div
-                              className="bg-blue-600 h-2 rounded-full"
-                              style={{ width: `${(processo.votos_atuais / processo.quorum_necessario) * 100}%` }}
-                            />
-                          </div>
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <Button variant="default" size="sm">
+                                <Scale className="h-4 w-4 mr-1" />
+                                Votar
+                              </Button>
+                            </SheetTrigger>
+                            <SheetContent className="w-full sm:max-w-4xl">
+                              <SheetHeader>
+                                <SheetTitle>Votação do Processo {processo.codigo_acompanhamento}</SheetTitle>
+                              </SheetHeader>
+                              <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
+                                <VotingInterface
+                                  processoId={processo.id}
+                                  julgadorId="1"
+                                  className="max-w-none"
+                                />
+                              </ScrollArea>
+                            </SheetContent>
+                          </Sheet>
                         </div>
                       </div>
 
-                      <div className="mt-4 lg:mt-0 lg:ml-6">
-                        <VotingInterface
-                          processoId={processo.id}
-                          julgadorId="1"
-                        />
+                      {/* Process Info Grid - Responsive Layout */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Main Info */}
+                        <div className="lg:col-span-2 space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-600">Cidadão:</span>
+                              <span className="font-medium">{processo.cidadao_nome}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Scale className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-600">Relator:</span>
+                              <span className="font-medium">{processo.relator_nome}</span>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                            <div className="flex items-start gap-2 mb-2">
+                              <FileText className="h-4 w-4 text-blue-600 mt-0.5" />
+                              <span className="text-sm font-medium text-blue-900">Parecer do Relator</span>
+                            </div>
+                            <p className="text-sm text-blue-800 leading-relaxed">
+                              {processo.parecer_relator}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Status Panel */}
+                        <div className="space-y-4">
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <h4 className="text-sm font-medium text-gray-900 mb-3">Status da Votação</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Progresso</span>
+                                <span className="font-medium">
+                                  {Math.round((processo.votos_atuais / processo.quorum_necessario) * 100)}%
+                                </span>
+                              </div>
+                              <div className="bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full transition-all"
+                                  style={{ width: `${(processo.votos_atuais / processo.quorum_necessario) * 100}%` }}
+                                />
+                              </div>
+                              <div className={`flex items-center gap-2 text-sm ${
+                                isUrgent(processo.data_limite_votacao) ? 'text-red-600' : 'text-gray-600'
+                              }`}>
+                                <Clock className="h-4 w-4" />
+                                <span>{getTimeRemaining(processo.data_limite_votacao)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Eye className="h-4 w-4 mr-1" />
+                            Ver Documentos
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
-        {/* Processos Já Votados */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <CheckCircle2 className="h-5 w-5 text-green-600 mr-2" />
-            Votações Realizadas ({processosVotados.length})
-          </h2>
-
-          {processosVotados.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <Vote className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhuma votação realizada ainda
-              </h3>
-              <p className="text-gray-600">
-                Seus votos aparecerão aqui após serem registrados
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {processosVotados
-                .filter(processo =>
-                  processo.codigo_acompanhamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  processo.cidadao_nome.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((processo) => (
-                <div key={processo.id} className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {processo.codigo_acompanhamento}
-                        </h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          processo.meu_voto === 'concordo'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {processo.meu_voto === 'concordo' ? 'CONCORDO' : 'DISCORDO'}
-                        </span>
+          <TabsContent value="votados" className="space-y-4">
+            {processosVotados.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <CheckCircle2 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Nenhuma votação realizada ainda
+                </h3>
+                <p className="text-gray-600">
+                  Seus votos aparecerão aqui após serem registrados
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {processosVotados
+                  .filter(processo =>
+                    processo.codigo_acompanhamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    processo.cidadao_nome.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((processo) => (
+                  <div key={processo.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div className="p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {processo.codigo_acompanhamento}
+                          </h3>
+                          <div className="flex gap-2">
+                            <Badge variant={processo.meu_voto === 'concordo' ? 'default' : 'destructive'}>
+                              {processo.meu_voto === 'concordo' ? 'CONCORDO' : 'DISCORDO'}
+                            </Badge>
+                            <Badge variant="outline">
+                              {processo.tipo_infracao.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm text-gray-600">
+                            <Vote className="inline h-4 w-4 mr-1" />
+                            {processo.votos_atuais}/{processo.quorum_necessario}
+                          </div>
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-1" />
+                                Ver Detalhes
+                              </Button>
+                            </SheetTrigger>
+                            <SheetContent className="w-full sm:max-w-4xl">
+                              <SheetHeader>
+                                <SheetTitle>Detalhes do Processo {processo.codigo_acompanhamento}</SheetTitle>
+                              </SheetHeader>
+                              <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
+                                <VotingInterface
+                                  processoId={processo.id}
+                                  julgadorId="1"
+                                  className="max-w-none"
+                                />
+                              </ScrollArea>
+                            </SheetContent>
+                          </Sheet>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                        <div>
-                          <span className="font-medium">Cidadão:</span> {processo.cidadao_nome}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">Cidadão:</span>
+                          <span className="font-medium">{processo.cidadao_nome}</span>
                         </div>
-                        <div>
-                          <span className="font-medium">Tipo:</span> {processo.tipo_infracao}
+                        <div className="flex items-center gap-2">
+                          <Scale className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">Relator:</span>
+                          <span className="font-medium">{processo.relator_nome}</span>
                         </div>
-                        <div>
-                          <span className="font-medium">Progresso:</span> {processo.votos_atuais}/{processo.quorum_necessario} votos
+                        <div className="flex items-center gap-2">
+                          <Vote className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">Progresso:</span>
+                          <span className="font-medium">{processo.votos_atuais}/{processo.quorum_necessario} votos</span>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="ml-6">
-                      <Button variant="ghost" size="sm">
-                        Ver Detalhes
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Estatísticas */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">

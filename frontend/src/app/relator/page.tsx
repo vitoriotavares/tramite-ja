@@ -73,30 +73,28 @@ export default function RelatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full h-full">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Dashboard do Relator
-              </h1>
-              <p className="text-gray-600">
-                {relatorData.nome} • {relatorData.registro_oab}
-              </p>
-            </div>
-            <div className="mt-4 sm:mt-0 flex items-center space-x-2">
-              <UserCheck className="h-5 w-5 text-green-600" />
-              <span className="text-sm text-gray-600">
-                {relatorData.processos_ativos}/{relatorData.capacidade_maxima} processos
-              </span>
-            </div>
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Dashboard do Relator
+            </h1>
+            <p className="text-gray-600">
+              {relatorData.nome} • {relatorData.registro_oab}
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex items-center space-x-2">
+            <UserCheck className="h-5 w-5 text-green-600" />
+            <span className="text-sm text-gray-600">
+              {relatorData.processos_ativos}/{relatorData.capacidade_maxima} processos
+            </span>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
         {/* Dashboard Component */}
         <div className="mb-8">
           <RelatorDashboard relatorId="1" />
