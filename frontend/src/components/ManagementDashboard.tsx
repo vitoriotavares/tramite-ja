@@ -72,23 +72,60 @@ export function ManagementDashboard({ className }: ManagementDashboardProps) {
       try {
         setLoading(true)
 
-        const params = new URLSearchParams({
-          periodo: periodo,
-          tipo: tipoMetrica
-        })
-
-        const response = await fetch(`/api/v1/dashboard/metricas?${params}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        // Mock data para desenvolvimento
+        const mockData: DashboardMetricas = {
+          processos: {
+            total: 1247,
+            pendentes: 89,
+            finalizados: 1158,
+            em_atraso: 12,
+            taxa_conclusao: 92.8,
+            tempo_medio_conclusao: 18
+          },
+          relatores: {
+            total: 25,
+            ativos: 22,
+            disponivel_capacidade: 78.5,
+            carga_media: 68.3,
+            distribuicao_especializacoes: {
+              'velocidade': 8,
+              'estacionamento': 6,
+              'documentacao': 5,
+              'sinalizacao': 4,
+              'outras': 2
+            }
+          },
+          julgadores: {
+            total: 15,
+            ativos_ultimo_mes: 12,
+            votos_ultimo_mes: 247,
+            tempo_medio_voto: 8
+          },
+          performance: {
+            processos_por_dia: Array.from({ length: 30 }, (_, i) => ({
+              data: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              total: Math.floor(Math.random() * 20) + 10
+            })),
+            resolucao_por_tipo: [
+              { tipo: 'velocidade', total: 456, media_dias: 16 },
+              { tipo: 'estacionamento', total: 312, media_dias: 12 },
+              { tipo: 'documentacao', total: 234, media_dias: 22 },
+              { tipo: 'sinalizacao', total: 156, media_dias: 19 }
+            ],
+            tendencia_volume: 12.5,
+            tendencia_tempo: -8.2
+          },
+          alertas: {
+            processos_vencidos: 3,
+            relatores_sobrecarregados: 1,
+            documentos_pendentes: 8,
+            votacoes_travadas: 0
           }
-        })
-
-        if (!response.ok) {
-          throw new Error('Erro ao carregar métricas')
         }
 
-        const data = await response.json()
-        setMetricas(data)
+        // Simular delay de API
+        await new Promise(resolve => setTimeout(resolve, 800))
+        setMetricas(mockData)
 
       } catch (error) {
         console.error('Erro ao carregar métricas:', error)

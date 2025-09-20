@@ -83,20 +83,93 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
       try {
         setLoading(true)
 
-        const response = await fetch(`/api/v1/relatores/${relatorId}/dashboard`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Erro ao carregar dashboard')
+        // Mock data para desenvolvimento
+        const mockRelatorData: RelatorData = {
+          id: relatorId,
+          nome: "Dr. Ana Paula Silva",
+          registro_oab: "SP 123.456",
+          especializacoes: ["velocidade", "estacionamento", "documentacao"],
+          processos_ativos: 12,
+          capacidade_maxima: 15,
+          disponivel: true,
+          carga_trabalho_percentual: 80,
+          email: "ana.silva@oab.sp.gov.br",
+          data_cadastro: "2024-01-15T10:00:00Z",
+          disponivel_para_processo: true,
+          metricas_performance: {},
+          total_processos_historico: 156,
+          processos_finalizados: 144
         }
 
-        const data = await response.json()
-        setRelatorData(data.relator)
-        setProcessosPendentes(data.processos_pendentes)
-        setEstatisticas(data.estatisticas)
+        const mockEstatisticas: EstatisticasRelator = {
+          total_processos_atribuidos: 156,
+          processos_finalizados: 144,
+          processos_pendentes: 12,
+          processos_em_atraso: 2,
+          tempo_medio_analise: 14,
+          taxa_aprovacao: 68.5,
+          carga_trabalho_percentual: 80,
+          disponivel_para_novos: true,
+          metricas_performance: {}
+        }
+
+        const mockProcessosPendentes: ProcessoPendente[] = [
+          {
+            id: "1",
+            codigo_acompanhamento: "TRAM-2024-001",
+            tipo_infracao: "velocidade",
+            status: "distribuido",
+            cidadao_nome: "João Santos Silva",
+            data_criacao: "2024-09-15T10:00:00Z",
+            data_limite: "2024-09-30T23:59:59Z",
+            dias_para_vencimento: 10,
+            documentos_count: 3,
+            urgente: false
+          },
+          {
+            id: "2",
+            codigo_acompanhamento: "TRAM-2024-002",
+            tipo_infracao: "estacionamento",
+            status: "em_analise",
+            cidadao_nome: "Maria Oliveira Costa",
+            data_criacao: "2024-09-18T14:30:00Z",
+            data_limite: "2024-09-25T23:59:59Z",
+            dias_para_vencimento: 5,
+            documentos_count: 2,
+            urgente: true
+          },
+          {
+            id: "3",
+            codigo_acompanhamento: "TRAM-2024-003",
+            tipo_infracao: "rodizio",
+            status: "distribuido",
+            cidadao_nome: "Carlos Eduardo Santos",
+            data_criacao: "2024-09-19T09:15:00Z",
+            data_limite: "2024-10-02T23:59:59Z",
+            dias_para_vencimento: 12,
+            documentos_count: 4,
+            urgente: false
+          },
+          {
+            id: "4",
+            codigo_acompanhamento: "TRAM-2024-004",
+            tipo_infracao: "velocidade",
+            status: "em_votacao",
+            cidadao_nome: "Ana Beatriz Lima",
+            data_criacao: "2024-09-10T16:45:00Z",
+            data_limite: "2024-09-22T23:59:59Z",
+            dias_para_vencimento: 2,
+            documentos_count: 5,
+            urgente: true
+          }
+        ]
+
+        // Simular delay de API
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        setRelatorData(mockRelatorData)
+        setProcessosPendentes(mockProcessosPendentes)
+        setEstatisticas(mockEstatisticas)
 
       } catch (error) {
         console.error('Erro ao carregar dashboard:', error)
@@ -114,9 +187,9 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
     const matchesSearch = processo.codigo_acompanhamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          processo.cidadao_nome.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = !filtroStatus || processo.status === filtroStatus
-    const matchesTipo = !filtroTipo || processo.tipo_infracao === filtroTipo
-    const matchesUrgencia = !filtroUrgencia ||
+    const matchesStatus = filtroStatus === 'todos' || !filtroStatus || processo.status === filtroStatus
+    const matchesTipo = filtroTipo === 'todos' || !filtroTipo || processo.tipo_infracao === filtroTipo
+    const matchesUrgencia = filtroUrgencia === 'todos' || !filtroUrgencia ||
                            (filtroUrgencia === 'urgente' && processo.urgente) ||
                            (filtroUrgencia === 'normal' && !processo.urgente)
 
@@ -375,7 +448,7 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="distribuido">Distribuído</SelectItem>
                   <SelectItem value="em_analise">Em Análise</SelectItem>
                   <SelectItem value="em_votacao">Em Votação</SelectItem>
@@ -390,7 +463,7 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="velocidade">Velocidade</SelectItem>
                   <SelectItem value="rodizio">Rodízio</SelectItem>
                   <SelectItem value="semaforo">Semáforo</SelectItem>
@@ -405,7 +478,7 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="urgente">Urgente</SelectItem>
                   <SelectItem value="normal">Normal</SelectItem>
                 </SelectContent>
@@ -416,9 +489,9 @@ export function RelatorDashboard({ relatorId, className }: RelatorDashboardProps
               <Button
                 variant="outline"
                 onClick={() => {
-                  setFiltroStatus('')
-                  setFiltroTipo('')
-                  setFiltroUrgencia('')
+                  setFiltroStatus('todos')
+                  setFiltroTipo('todos')
+                  setFiltroUrgencia('todos')
                   setSearchTerm('')
                 }}
               >

@@ -1,6 +1,6 @@
 class CreateRelators < ActiveRecord::Migration[8.0]
   def change
-    create_table :relators do |t|
+    create_table :relators, id: :uuid do |t|
       t.string :nome
       t.string :registro_oab
       t.string :email

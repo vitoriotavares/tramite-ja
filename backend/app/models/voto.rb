@@ -4,7 +4,7 @@ class Voto < ApplicationRecord
   belongs_to :julgador
 
   # Enums
-  enum decisao: {
+  enum :decisao, {
     concordo: 0,
     discordo: 1
   }

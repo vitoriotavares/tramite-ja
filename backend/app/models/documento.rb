@@ -3,14 +3,14 @@ class Documento < ApplicationRecord
   belongs_to :processo
 
   # Enums
-  enum tipo: {
+  enum :tipo, {
     cnh: 0,
     crlv: 1,
     comprovante: 2,
     outros: 3
   }
 
-  enum status_validacao: {
+  enum :status_validacao, {
     pendente: 0,
     aprovado: 1,
     rejeitado: 2

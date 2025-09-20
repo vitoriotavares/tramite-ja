@@ -7,8 +7,8 @@ class Julgador < ApplicationRecord
   ESPECIALIZACOES = %w[velocidade rodizio semaforo geral].freeze
 
   # Serializers para arrays e JSON
-  serialize :especializacoes, JSON
-  serialize :historico_votos, JSON
+  serialize :especializacoes, type: Array, coder: JSON
+  serialize :historico_votos, type: Hash, coder: JSON
 
   # Validações
   validates :nome, presence: true, length: { maximum: 255 }

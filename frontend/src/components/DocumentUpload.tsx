@@ -106,7 +106,7 @@ export function DocumentUpload({
         tipo: fileType,
         status: error ? 'error' : 'pending',
         progress: 0,
-        error
+        error: error || undefined
       }
 
       setDocuments(prev => [...prev, documentFile])

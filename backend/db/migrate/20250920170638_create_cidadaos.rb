@@ -1,5 +1,8 @@
 class CreateCidadaos < ActiveRecord::Migration[8.0]
   def change
+    # Enable UUID extension first
+    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
+
     create_table :cidadaos, id: :uuid do |t|
       t.string :cpf, null: false, limit: 11
       t.string :nome_completo, null: false, limit: 255

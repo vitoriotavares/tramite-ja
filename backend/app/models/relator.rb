@@ -6,8 +6,8 @@ class Relator < ApplicationRecord
   ESPECIALIZACOES = %w[velocidade rodizio semaforo geral].freeze
 
   # Serializers para arrays e JSON
-  serialize :especializacoes, JSON
-  serialize :metricas_performance, JSON
+  serialize :especializacoes, type: Array, coder: JSON
+  serialize :metricas_performance, type: Hash, coder: JSON
 
   # Validações
   validates :nome, presence: true, length: { maximum: 255 }

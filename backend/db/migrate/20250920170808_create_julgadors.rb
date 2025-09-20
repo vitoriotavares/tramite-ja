@@ -1,6 +1,6 @@
 class CreateJulgadors < ActiveRecord::Migration[8.0]
   def change
-    create_table :julgadors do |t|
+    create_table :julgadors, id: :uuid do |t|
       t.string :nome
       t.string :registro_profissional
       t.string :email

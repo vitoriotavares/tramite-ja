@@ -1,15 +1,7 @@
 class ConvertToUuidsAndAddConstraints < ActiveRecord::Migration[8.0]
   def change
-    # Enable UUID extension
-    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
-
-    # Update all existing tables to use UUID primary keys
-    # Note: This assumes fresh development environment
-
-    # Add unique constraints and indexes
-    add_index :cidadaos, :cpf, unique: true
-    add_index :cidadaos, :oauth_gov_id, unique: true
-    add_index :cidadaos, :email
+    # Add unique constraints and indexes (all tables now use UUID)
+    # Note: Basic indexes for cidadaos already created in create_cidadaos migration
 
     add_index :relators, :registro_oab, unique: true
     add_index :relators, :email, unique: true
@@ -21,19 +13,21 @@ class ConvertToUuidsAndAddConstraints < ActiveRecord::Migration[8.0]
 
     add_index :processos, :codigo_acompanhamento, unique: true
     add_index :processos, [:status, :data_limite]
-    add_index :processos, :cidadao_id
-    add_index :processos, :relator_id
     add_index :processos, :data_criacao
+    # Note: cidadao_id and relator_id indexes automatically created by foreign keys
 
     add_index :votos, [:processo_id, :julgador_id], unique: true
     add_index :votos, :data_voto
+    # Note: individual foreign key indexes automatically created
 
     add_index :documentos, [:processo_id, :tipo]
     add_index :documentos, :status_validacao
+    # Note: processo_id index automatically created by foreign key
 
     add_index :notificacaos, [:processo_id, :tipo]
     add_index :notificacaos, :status_envio
     add_index :notificacaos, :data_criacao
+    # Note: processo_id index automatically created by foreign key
 
     # Add check constraints
     add_check_constraint :relators, 'capacidade_maxima > 0', name: 'capacidade_maxima_positive'

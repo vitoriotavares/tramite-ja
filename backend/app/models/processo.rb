@@ -5,16 +5,16 @@ class Processo < ApplicationRecord
   has_many :votos, dependent: :destroy
   has_many :julgadores, through: :votos
   has_many :documentos, dependent: :destroy
-  has_many :notificacoes, dependent: :destroy
+  has_many :notificacoes, class_name: 'Notificacao', dependent: :destroy
 
   # Enums
-  enum tipo_infracao: {
+  enum :tipo_infracao, {
     velocidade: 0,
     rodizio: 1,
     semaforo: 2
   }
 
-  enum status: {
+  enum :status, {
     rascunho: 0,
     triagem: 1,
     distribuido: 2,
@@ -24,10 +24,10 @@ class Processo < ApplicationRecord
     rejeitado: 6
   }
 
-  enum decisao_final: {
+  enum :decisao_final, {
     deferido: 0,
     indeferido: 1
-  }, _prefix: true
+  }, prefix: true
 
   # Validações
   validates :codigo_acompanhamento, presence: true, uniqueness: true, length: { is: 12 }
@@ -50,9 +50,9 @@ class Processo < ApplicationRecord
   validate :documentos_obrigatorios_presentes, if: :triagem?
 
   # Callbacks
-  before_create :generate_codigo_acompanhamento
-  before_create :set_data_criacao
-  before_create :set_data_limite
+  before_validation :generate_codigo_acompanhamento, on: :create
+  before_validation :set_data_criacao, on: :create
+  before_validation :set_data_limite, on: :create
   after_update :atualizar_contador_relator, if: :saved_change_to_relator_id?
   after_update :finalizar_votacao_se_quorum_atingido, if: :em_votacao?
 
@@ -224,6 +224,8 @@ class Processo < ApplicationRecord
   end
 
   def generate_codigo_acompanhamento
+    return if codigo_acompanhamento.present?
+
     loop do
       self.codigo_acompanhamento = SecureRandom.alphanumeric(12).upcase
       break unless self.class.exists?(codigo_acompanhamento: codigo_acompanhamento)
@@ -235,7 +237,7 @@ class Processo < ApplicationRecord
   end
 
   def set_data_limite
-    self.data_limite ||= 30.days.from_now
+    self.data_limite ||= (data_criacao || Time.current) + 29.days
   end
 
   def data_limite_valida
@@ -304,7 +306,9 @@ class Processo < ApplicationRecord
       tipo: tipo,
       assunto: gerar_assunto_notificacao(tipo),
       conteudo: gerar_conteudo_notificacao(tipo),
-      status_envio: 'pendente'
+      status_envio: 'pendente',
+      data_criacao: Time.current,
+      tentativas: 0
     )
   end
 

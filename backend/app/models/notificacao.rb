@@ -1,9 +1,11 @@
 class Notificacao < ApplicationRecord
+  self.table_name = 'notificacaos'
+
   # Relacionamentos
   belongs_to :processo
 
   # Enums
-  enum tipo: {
+  enum :tipo, {
     criacao: 0,
     triagem: 1,
     distribuicao: 2,
@@ -12,7 +14,7 @@ class Notificacao < ApplicationRecord
     decisao: 5
   }
 
-  enum status_envio: {
+  enum :status_envio, {
     pendente: 0,
     enviado: 1,
     falhado: 2

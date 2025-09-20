@@ -48,6 +48,7 @@ interface DocumentoProcesso {
 
 interface VotoExistente {
   id: string
+  julgador_id: string
   julgador_nome: string
   decisao: string
   justificativa?: string
@@ -82,21 +83,79 @@ export function VotingInterface({
       try {
         setLoading(true)
 
-        const response = await fetch(`/api/v1/processos/${processoId}/votos`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Erro ao carregar processo para votação')
+        // Mock data para desenvolvimento
+        const mockProcesso: ProcessoVotacao = {
+          id: processoId,
+          codigo_acompanhamento: "TRAM-2024-001",
+          tipo_infracao: "velocidade",
+          status: "em_votacao",
+          cidadao_nome: "João Santos Silva",
+          cidadao_cpf: "123.456.789-00",
+          data_criacao: "2024-09-15T10:00:00Z",
+          data_limite: "2024-09-30T23:59:59Z",
+          parecer_relator: "Após análise detalhada da documentação apresentada, verifico que o condutor comprova estar dentro dos limites de velocidade permitidos na via através de GPS e tacógrafo digital. A multa foi aplicada incorretamente devido a erro de calibração do radar, conforme laudo técnico anexo. Recomendo DEFERIMENTO do recurso.",
+          relator_nome: "Dr. Ana Paula Silva",
+          documentos: [
+            {
+              id: "1",
+              tipo: "cnh",
+              nome_arquivo: "CNH_Joao_Santos.pdf",
+              status_validacao: "validado",
+              url_visualizacao: "/docs/1"
+            },
+            {
+              id: "2",
+              tipo: "infracao",
+              nome_arquivo: "Auto_Infracao_123456.pdf",
+              status_validacao: "validado",
+              url_visualizacao: "/docs/2"
+            },
+            {
+              id: "3",
+              tipo: "defesa",
+              nome_arquivo: "Defesa_Tecnica.pdf",
+              status_validacao: "validado",
+              url_visualizacao: "/docs/3"
+            },
+            {
+              id: "4",
+              tipo: "prova",
+              nome_arquivo: "Laudo_GPS_Tacografo.pdf",
+              status_validacao: "validado",
+              url_visualizacao: "/docs/4"
+            }
+          ],
+          votos_existentes: [
+            {
+              id: "1",
+              julgador_id: "judge-1",
+              julgador_nome: "Dr. Carlos Mendes",
+              decisao: "concordo",
+              justificativa: "Concordo com o parecer do relator. A documentação comprova a irregularidade na aplicação da multa.",
+              data_voto: "2024-09-18T14:30:00Z",
+              especializado: true
+            },
+            {
+              id: "2",
+              julgador_id: "judge-2",
+              julgador_nome: "Dra. Maria Fernanda",
+              decisao: "concordo",
+              data_voto: "2024-09-19T09:15:00Z",
+              especializado: false
+            }
+          ],
+          quorum_necessario: 3,
+          votos_atuais: 2,
+          decisao_quorum: undefined
         }
 
-        const data = await response.json()
-        setProcesso(data.processo)
+        // Simular delay de API
+        await new Promise(resolve => setTimeout(resolve, 800))
+
+        setProcesso(mockProcesso)
 
         // Verificar se o julgador já votou
-        const votoExistente = data.processo.votos_existentes.find(
+        const votoExistente = mockProcesso.votos_existentes.find(
           (voto: VotoExistente) => voto.julgador_id === julgadorId
         )
         setJaVotou(!!votoExistente)
@@ -146,21 +205,23 @@ export function VotingInterface({
         tempo_analise: tempoAnalise
       }
 
-      const response = await fetch(`/api/v1/processos/${processoId}/votos`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // Mock da submissão do voto para desenvolvimento
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
+      const resultado = {
+        success: true,
+        voto: {
+          id: Date.now().toString(),
+          julgador_id: julgadorId,
+          decisao,
+          justificativa: justificativa.trim() || null,
+          tempo_analise: tempoAnalise,
+          data_voto: new Date().toISOString()
         },
-        body: JSON.stringify({ voto: votoData })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Erro ao submeter voto')
+        processo_status: 'quorum_atingido',
+        votos_atuais: 3,
+        quorum_necessario: 3
       }
-
-      const resultado = await response.json()
 
       setJaVotou(true)
       onVoteSubmitted?.(resultado)
